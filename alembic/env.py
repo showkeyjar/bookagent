@@ -9,11 +9,31 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # 将项目根目录添加到 Python 路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import os
+import sys
+
+# 硬编码项目根目录路径
+project_root = r"D:\codes\bookagent"
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# 打印当前工作目录和 Python 路径
+print(f"Current working directory: {os.getcwd()}")
+print(f"Project root: {project_root}")
+print(f"Python path: {sys.path}")
+
+# 检查 app 目录是否存在
+app_path = os.path.join(project_root, 'app')
+print(f"App path exists: {os.path.exists(app_path)}")
+print(f"App directory contents: {os.listdir(project_root)}")
 
 # 导入配置和模型
-from app.core.config import settings
-from app.core.database import Base
+try:
+    from app.core.config import settings
+    from app.core.database import Base
+except ImportError as e:
+    print(f"Import error: {e}")
+    raise
 
 # 导入所有模型以确保它们被注册到Base.metadata中
 from app.models import user, book, chapter, template  # noqa
