@@ -59,6 +59,15 @@ class Settings(BaseSettings):
     # 第一个超级用户配置
     FIRST_SUPERUSER: str = os.getenv("FIRST_SUPERUSER", "admin@example.com")
     FIRST_SUPERUSER_PASSWORD: str = os.getenv("FIRST_SUPERUSER_PASSWORD", "changethis")
+
+    # LLM 配置
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "openai")  # openai, azure, custom
+    LLM_API_BASE: Optional[HttpUrl] = os.getenv("LLM_API_BASE", "https://api.openai.com/v1")
+    LLM_API_VERSION: Optional[str] = os.getenv("LLM_API_VERSION")  # Azure 需要
+    LLM_TIMEOUT: int = int(os.getenv("LLM_TIMEOUT", "60"))  # 请求超时(秒)
+    LLM_MAX_RETRIES: int = int(os.getenv("LLM_MAX_RETRIES", "3"))  # 最大重试次数
+    LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.7"))  # 温度参数
+    LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "2000"))  # 最大token数
     
     # 验证CORS_ORIGINS格式
     @validator("CORS_ORIGINS", pre=True)

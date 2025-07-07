@@ -1,29 +1,110 @@
 """
 AI内容生成相关API
+支持所有兼容OpenAI API格式的模型服务
 """
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, AsyncGenerator
 import json
-import openai
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
-from ..core import security
-from ..core.config import settings
-from ..core.database import get_db
+from ..schemas.ai import (
+    AIChatRequest,
+    AIChatResponse,
+    AIGenerateRequest,
+    AIGenerateResponse
+)
+from ..services.ai_service import get_ai_service, AIService
+from ..core.security import get_current_active_user
 from ..models.user import User
-from ..models.book import Book
-from ..models.chapter import Chapter
-from ..models.template import Template
-from ..schemas.chapter import ChapterCreate, ChapterUpdate
 
 router = APIRouter()
 
-# 初始化OpenAI客户端
-openai.api_key = settings.OPENAI_API_KEY
+@router.post("/chat", response_model=AIChatResponse)
+async def chat_completion(
+    request: AIChatRequest,
+    current_user: User = Depends(get_current_active_user),
+    ai_service: AIService = Depends(get_ai_service)
+):
+    """
+    聊天补全接口
+    """
+    try:
+        response = await ai_service.chat_completion(
+            messages=request.messages,
+            model=request.model,
+            temperature=request.temperature,
+            max_tokens=request.max_tokens,
+            **request.model_extra or {}
+        )
+        return {"data": response}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"AI服务暂时不可用: {str(e)}"
+        )
 
-class AIService:
-    """AI内容生成服务"""
+@router.post("/chat/stream")
+async def stream_chat_completion(
+    request: AIChatRequest,
+    current_user: User = Depends(get_current_active_user),
+    ai_service: AIService = Depends(get_ai_service)
+):
+    """
+    流式聊天补全接口
+    """
+    async def generate():
+        try:
+            stream = await ai_service.stream_chat_completion(
+                messages=request.messages,
+                model=request.model,
+                temperature=request.temperature,
+                max_tokens=request.max_tokens,
+                **request.model_extra or {}
+            )
+            
+            async for chunk in stream:
+                yield f"data: {json.dumps(chunk)}\n\n"
+                
+        except Exception as e:
+            error_msg = {"error": f"AI服务错误: {str(e)}"}
+            yield f"data: {json.dumps(error_msg)}\n\n"
+        
+        yield "data: [DONE]\n\n"
+    
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+@router.post("/generate/chapter", response_model=AIGenerateResponse)
+async def generate_chapter_content(
+    request: AIGenerateRequest,
+    current_user: User = Depends(get_current_active_user),
+    ai_service: AIService = Depends(get_ai_service)
+):
+    """
+    生成章节内容
+    """
+    try:
+        content = await ai_service.generate_chapter_content(
+            title=request.title,
+            style=request.style,
+            language=request.language,
+            length=request.length,
+            **request.model_extra or {}
+        )
+        return {"content": content}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"生成内容失败: {str(e)}"
+        )
     
     @staticmethod
     def generate_chapter_content(
