@@ -4,6 +4,7 @@
 import os
 from typing import List, Optional
 from pydantic import AnyHttpUrl, BaseSettings, validator
+from pydantic import HttpUrl
 from dotenv import load_dotenv
 
 # 加载环境变量
@@ -62,7 +63,7 @@ class Settings(BaseSettings):
 
     # LLM 配置
     LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "openai")  # openai, azure, custom
-    LLM_API_BASE: Optional[HttpUrl] = os.getenv("LLM_API_BASE", "https://api.openai.com/v1")
+    LLM_API_BASE: Optional[str] = os.getenv("LLM_API_BASE", "https://api.openai.com/v1")
     LLM_API_VERSION: Optional[str] = os.getenv("LLM_API_VERSION")  # Azure 需要
     LLM_TIMEOUT: int = int(os.getenv("LLM_TIMEOUT", "60"))  # 请求超时(秒)
     LLM_MAX_RETRIES: int = int(os.getenv("LLM_MAX_RETRIES", "3"))  # 最大重试次数

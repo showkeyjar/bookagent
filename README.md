@@ -6,12 +6,31 @@
 
 ## 功能特性
 
-- **智能内容生成**：基于大语言模型自动生成高质量技术内容
-- **模板管理**：支持自定义Word模板，灵活适配不同写作需求
-- **交互式编辑**：提供实时协作编辑功能，支持多人同时编辑
+### 🎯 专注思想传递的界面设计
+- **简洁直观**：去除干扰元素，让用户专注于内容创作
+- **智能引导**：分步骤的创作流程，从想法到成书
+- **实时预览**：所见即所得的编辑体验
+
+### 🤖 AI 驱动的智能创作
+- **思想启发**：AI 助手帮助激发创作灵感
+- **内容生成**：基于大语言模型自动生成高质量技术内容
+- **智能优化**：自动优化文字表达和内容结构
+
+### 📚 结构化的图书管理
+- **模板系统**：提供多种图书模板，快速开始创作
+- **章节管理**：可视化的章节结构，支持拖拽重组
+- **进度跟踪**：实时显示创作进度和字数统计
+
+### 🎨 现代化的用户体验
+- **响应式设计**：完美适配桌面和移动设备
+- **流畅动画**：精心设计的交互动效
+- **深色模式**：护眼的深色主题（即将推出）
+
+### 🔧 强大的编辑功能
+- **Markdown 支持**：支持 Markdown 语法，专业排版
+- **实时协作**：多人同时编辑和评论（开发中）
 - **版本控制**：完整的版本历史记录，支持版本对比和回滚
-- **权限管理**：基于角色的访问控制，确保数据安全
-- **RESTful API**：标准化的API接口，方便集成其他系统
+- **导出功能**：支持多种格式导出（PDF、Word、HTML）
 
 ## 技术栈
 
@@ -25,61 +44,92 @@
 
 ### 环境要求
 
+**后端**：
 - Python 3.9+
-- PostgreSQL 13+
-- Redis 6+
-- MinIO (可选，用于文件存储)
+- PostgreSQL 13+ (可选，开发阶段可跳过)
+- Redis 6+ (可选，开发阶段可跳过)
 
-### 1. 克隆代码库
+**前端**：
+- Node.js 16+
+- npm 或 yarn
+
+### 方式一：快速体验（推荐）
+
+#### 1. 启动前端界面
+
+```bash
+# Windows 用户
+start-frontend.bat
+
+# macOS/Linux 用户
+chmod +x start-frontend.sh
+./start-frontend.sh
+```
+
+前端将在 http://localhost:3000 启动，你可以立即体验完整的用户界面。
+
+#### 2. 启动后端 API（可选）
+
+```bash
+# 安装基础依赖
+pip install fastapi uvicorn python-dotenv
+
+# 启动简化版 API
+python simple_main.py
+```
+
+后端将在 http://localhost:8000 启动。
+
+### 方式二：完整开发环境
+
+#### 1. 克隆代码库
 
 ```bash
 git clone https://github.com/yourusername/bookagent.git
 cd bookagent
 ```
 
-### 2. 创建并激活虚拟环境
+#### 2. 后端设置
 
 ```bash
-# Windows
+# 创建虚拟环境
 python -m venv venv
+
+# 激活虚拟环境
+# Windows
 .\venv\Scripts\activate
-
 # macOS/Linux
-python3 -m venv venv
 source venv/bin/activate
-```
 
-### 3. 安装依赖
-
-```bash
+# 安装依赖
 pip install -r requirements.txt
-```
 
-### 4. 配置环境变量
-
-复制示例环境变量文件并修改配置：
-
-```bash
+# 配置环境变量
 cp .env.example .env
+# 编辑 .env 文件设置配置
+
+# 启动后端
+uvicorn bookagent.main:app --reload
 ```
 
-编辑 `.env` 文件，设置您的数据库连接和其他配置。
-
-### 5. 初始化数据库
+#### 3. 前端设置
 
 ```bash
-alembic upgrade head
+# 进入前端目录
+cd frontend
+
+# 安装依赖
+npm install
+
+# 启动前端
+npm run dev
 ```
 
-### 6. 运行开发服务器
+### 访问应用
 
-```bash
-uvicorn main:app --reload
-```
-
-API文档将在以下地址可用：
-- Swagger UI: http://localhost:8000/api/docs
-- ReDoc: http://localhost:8000/api/redoc
+- **前端界面**: http://localhost:3000
+- **后端 API**: http://localhost:8000
+- **API 文档**: http://localhost:8000/api/docs
 
 ## API 使用示例
 
