@@ -6,7 +6,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from contextlib import asynccontextmanager
 import uvicorn
 import uuid
 from datetime import datetime
@@ -125,18 +124,6 @@ def init_sample_data():
         books_db[book_id] = book
         create_initial_chapters(book_id, book_create.template_id)
 
-# 应用生命周期管理
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # 启动时执行
-    init_sample_data()
-    print("BookAgent API 启动成功!")
-    print("API 文档: http://localhost:8000/api/docs")
-    print("前端地址: http://localhost:3000")
-    yield
-    # 关闭时执行
-    print("BookAgent API 正在关闭...")
-
 # 创建FastAPI应用
 app = FastAPI(
     title="BookAgent API",
@@ -144,7 +131,6 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
-    lifespan=lifespan
 )
 
 # 添加CORS中间件
@@ -308,10 +294,18 @@ async def generate_outline(book_data: BookCreate):
     template_id = book_data.template_id or "technical-guide"
     return {"outline": outlines.get(template_id, outlines["technical-guide"])}
 
+# 启动时初始化数据
+@app.on_event("startup")
+async def startup_event():
+    init_sample_data()
+    print("📚 BookAgent API 启动成功!")
+    print("🌐 API 文档: http://localhost:8000/api/docs")
+    print("🎯 前端地址: http://localhost:3000")
+
 if __name__ == "__main__":
-    print("启动 BookAgent API 服务器...")
+    print("🚀 启动 BookAgent API 服务器...")
     uvicorn.run(
-        "simple_main:app",
+        "simple_main_fixed:app",
         host="0.0.0.0",
         port=8000,
         reload=True,

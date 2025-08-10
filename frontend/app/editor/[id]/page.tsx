@@ -137,21 +137,35 @@ export default function EditorPage({ params }: { params: { id: string } }) {
       icon: LightBulbIcon, 
       label: '生成大纲', 
       action: () => setAiInput('请帮我为当前章节生成详细大纲'),
-      color: 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100'
+      color: 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100',
+      description: '让AI帮你理清思路'
     },
     { 
       icon: PencilIcon, 
       label: '扩展内容', 
       action: () => setAiInput('请帮我扩展当前段落的内容'),
-      color: 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+      color: 'text-blue-600 bg-blue-50 hover:bg-blue-100',
+      description: '丰富你的表达'
     },
     { 
       icon: BoltIcon, 
       label: '优化表达', 
       action: () => setAiInput('请帮我优化这段文字的表达方式'),
-      color: 'text-purple-600 bg-purple-50 hover:bg-purple-100'
+      color: 'text-purple-600 bg-purple-50 hover:bg-purple-100',
+      description: '让文字更精准'
     },
   ]
+
+  // 智能写作建议
+  const [writingSuggestions, setWritingSuggestions] = useState([
+    '当前章节可以添加一个实际案例来说明概念',
+    '建议在开头增加一个引人入胜的问题',
+    '可以考虑添加一个小结来总结要点'
+  ])
+
+  // 写作进度跟踪
+  const [todayWordCount, setTodayWordCount] = useState(0)
+  const [writingStreak, setWritingStreak] = useState(7) // 连续写作天数
 
   useEffect(() => {
     if (aiChatRef.current) {
@@ -357,19 +371,56 @@ export default function EditorPage({ params }: { params: { id: string } }) {
                     </button>
                   </div>
                   
-                  {/* 快速操作 */}
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600 mb-3">快速操作：</p>
-                    {quickActions.map((action, index) => (
-                      <button
-                        key={index}
-                        onClick={action.action}
-                        className={`w-full flex items-center space-x-2 p-2 rounded-lg text-sm transition-colors ${action.color}`}
-                      >
-                        <action.icon className="h-4 w-4" />
-                        <span>{action.label}</span>
-                      </button>
-                    ))}
+                  {/* 智能写作助手 */}
+                  <div className="space-y-4">
+                    {/* 今日写作统计 */}
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 p-3 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">今日写作</span>
+                        <span className="text-xs text-gray-500">{writingStreak} 天连续</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.min(100, (todayWordCount / 1000) * 100)}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {todayWordCount}/1000 字
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 快速操作 */}
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600 mb-3">AI 助手：</p>
+                      {quickActions.map((action, index) => (
+                        <button
+                          key={index}
+                          onClick={action.action}
+                          className={`w-full flex items-start space-x-3 p-3 rounded-lg text-sm transition-colors ${action.color} group`}
+                        >
+                          <action.icon className="h-4 w-4 mt-0.5 group-hover:scale-110 transition-transform" />
+                          <div className="text-left">
+                            <div className="font-medium">{action.label}</div>
+                            <div className="text-xs opacity-75 mt-1">{action.description}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* 智能建议 */}
+                    <div className="border-t border-gray-200 pt-4">
+                      <p className="text-sm text-gray-600 mb-3">💡 写作建议：</p>
+                      <div className="space-y-2">
+                        {writingSuggestions.slice(0, 2).map((suggestion, index) => (
+                          <div key={index} className="p-2 bg-yellow-50 rounded text-xs text-yellow-800 border border-yellow-200">
+                            {suggestion}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
 

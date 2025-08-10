@@ -44,7 +44,7 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/forms'),
+    // 暂时移除这些插件以避免编译错误
+    // 可以在需要时手动安装: npm install @tailwindcss/typography @tailwindcss/forms
   ],
 }

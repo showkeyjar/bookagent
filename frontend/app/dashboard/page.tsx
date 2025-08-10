@@ -31,6 +31,40 @@ export default function DashboardPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [selectedView, setSelectedView] = useState<'grid' | 'list'>('grid')
   const [isLoading, setIsLoading] = useState(true)
+  const [userName, setUserName] = useState('创作者')
+  const [currentTime, setCurrentTime] = useState('')
+  const [showWelcome, setShowWelcome] = useState(false)
+
+  // 获取当前时间和问候语
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      const hour = now.getHours()
+      let greeting = ''
+      
+      if (hour < 6) greeting = '深夜好'
+      else if (hour < 12) greeting = '早上好'
+      else if (hour < 18) greeting = '下午好'
+      else greeting = '晚上好'
+      
+      setCurrentTime(`${greeting}，${userName}`)
+    }
+    
+    updateTime()
+    const interval = setInterval(updateTime, 60000)
+    return () => clearInterval(interval)
+  }, [userName])
+
+  // 检查是否显示欢迎信息
+  useEffect(() => {
+    const lastVisit = localStorage.getItem('dashboard-last-visit')
+    const today = new Date().toDateString()
+    
+    if (lastVisit !== today) {
+      setShowWelcome(true)
+      localStorage.setItem('dashboard-last-visit', today)
+    }
+  }, [])
 
   // 模拟数据加载
   useEffect(() => {
@@ -130,21 +164,84 @@ export default function DashboardPage() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 页面标题和操作 */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">我的图书</h1>
-            <p className="text-gray-600">管理你的创作项目，专注于思想的表达</p>
+        {/* 智能问候和快速操作 */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {currentTime}
+              </h1>
+              <p className="text-gray-600">
+                {books.length === 0 
+                  ? '准备开始你的第一个创作项目吧' 
+                  : `你有 ${books.filter(b => b.status === 'writing').length} 个项目正在进行中`
+                }
+              </p>
+            </div>
+            <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+              {books.length > 0 && (
+                <button className="btn-secondary flex items-center space-x-2">
+                  <SparklesIcon className="h-5 w-5" />
+                  <span>AI 建议</span>
+                </button>
+              )}
+              <Link 
+                href="/create" 
+                className="btn-primary flex items-center space-x-2 group"
+              >
+                <PlusIcon className="h-5 w-5 group-hover:rotate-90 transition-transform" />
+                <span>{books.length === 0 ? '创建第一本书' : '新建图书'}</span>
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-            <Link 
-              href="/create" 
-              className="btn-primary flex items-center space-x-2"
+          
+          {/* 智能提示卡片 */}
+          {showWelcome && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200"
             >
-              <PlusIcon className="h-5 w-5" />
-              <span>新建图书</span>
-            </Link>
-          </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <SparklesIcon className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900 mb-1">
+                    {books.length === 0 ? '开始你的创作之旅' : '继续你的创作'}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {books.length === 0 
+                      ? 'AI助手已准备就绪，让我们一起将你的想法转化为精彩的内容'
+                      : '基于你的创作习惯，建议在今天完成 2-3 个章节的内容'
+                    }
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    {books.length === 0 ? (
+                      <Link href="/create" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        立即开始 →
+                      </Link>
+                    ) : (
+                      <>
+                        <Link href={`/editor/${books[0]?.id}`} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                          继续写作 →
+                        </Link>
+                        <button className="text-sm text-gray-500 hover:text-gray-700">
+                          查看建议
+                        </button>
+                      </>
+                    )}
+                    <button 
+                      onClick={() => setShowWelcome(false)}
+                      className="text-sm text-gray-400 hover:text-gray-600 ml-auto"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* 快速统计 */}
@@ -200,6 +297,61 @@ export default function DashboardPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               <span className="ml-2 text-gray-600">加载中...</span>
             </div>
+          ) : books.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <BookOpenIcon className="h-12 w-12 text-primary-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                开始你的创作之旅
+              </h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                每一本伟大的书都始于一个想法。让AI助手帮你将想法转化为精彩的内容。
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/create" className="btn-primary flex items-center space-x-2">
+                  <PlusIcon className="h-5 w-5" />
+                  <span>创建我的第一本书</span>
+                </Link>
+                <button className="btn-secondary flex items-center space-x-2">
+                  <SparklesIcon className="h-5 w-5" />
+                  <span>浏览创作模板</span>
+                </button>
+              </div>
+              
+              {/* 创作提示 */}
+              <div className="mt-12 grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                {[
+                  {
+                    icon: LightBulbIcon,
+                    title: '分享你的想法',
+                    description: '告诉我们你想写什么，AI会帮你完善思路'
+                  },
+                  {
+                    icon: PencilSquareIcon,
+                    title: '智能内容生成',
+                    description: '基于你的大纲，AI生成高质量的技术内容'
+                  },
+                  {
+                    icon: BookOpenIcon,
+                    title: '专业格式输出',
+                    description: '一键导出为PDF、Word等专业格式'
+                  }
+                ].map((tip, index) => (
+                  <div key={index} className="text-center">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <tip.icon className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">{tip.title}</h4>
+                    <p className="text-sm text-gray-600">{tip.description}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           ) : (
             <AnimatePresence mode="wait">
               {selectedView === 'grid' ? (

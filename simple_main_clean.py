@@ -130,12 +130,12 @@ def init_sample_data():
 async def lifespan(app: FastAPI):
     # 启动时执行
     init_sample_data()
-    print("BookAgent API 启动成功!")
-    print("API 文档: http://localhost:8000/api/docs")
-    print("前端地址: http://localhost:3000")
+    print("📚 BookAgent API 启动成功!")
+    print("🌐 API 文档: http://localhost:8000/api/docs")
+    print("🎯 前端地址: http://localhost:3000")
     yield
     # 关闭时执行
-    print("BookAgent API 正在关闭...")
+    print("🛑 BookAgent API 正在关闭...")
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -309,9 +309,9 @@ async def generate_outline(book_data: BookCreate):
     return {"outline": outlines.get(template_id, outlines["technical-guide"])}
 
 if __name__ == "__main__":
-    print("启动 BookAgent API 服务器...")
+    print("🚀 启动 BookAgent API 服务器...")
     uvicorn.run(
-        "simple_main:app",
+        "simple_main_clean:app",
         host="0.0.0.0",
         port=8000,
         reload=True,

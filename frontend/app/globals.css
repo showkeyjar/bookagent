@@ -32,7 +32,7 @@
   }
   
   .prose-custom {
-    @apply prose prose-gray max-w-none;
+    @apply max-w-none text-gray-700 leading-relaxed;
   }
   
   .prose-custom h1 {

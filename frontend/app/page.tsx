@@ -15,6 +15,17 @@ import Link from 'next/link'
 
 export default function HomePage() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
+  const [isFirstVisit, setIsFirstVisit] = useState(true)
+  
+  // 检测是否首次访问
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('bookagent-visited')
+    if (hasVisited) {
+      setIsFirstVisit(false)
+    } else {
+      localStorage.setItem('bookagent-visited', 'true')
+    }
+  }, [])
 
   const features = [
     {
@@ -77,25 +88,65 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                专注于
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
-                  思想传递
-                </span>
-                的创作平台
+                {isFirstVisit ? (
+                  <>
+                    欢迎来到
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
+                      思想传递
+                    </span>
+                    的世界
+                  </>
+                ) : (
+                  <>
+                    专注于
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
+                      思想传递
+                    </span>
+                    的创作平台
+                  </>
+                )}
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                BookAgent 是一个智能技术图书生成系统，让你专注于思想表达，
-                而不是格式排版。通过AI助手，将你的想法转化为结构化的专业内容。
+                {isFirstVisit ? (
+                  <>
+                    在这里，你的每一个想法都值得被精心雕琢。
+                    BookAgent 让创作变得简单，让思想传递变得高效。
+                    <br />
+                    <span className="text-primary-600 font-medium">准备好开始你的创作之旅了吗？</span>
+                  </>
+                ) : (
+                  <>
+                    BookAgent 是一个智能技术图书生成系统，让你专注于思想表达，
+                    而不是格式排版。通过AI助手，将你的想法转化为结构化的专业内容。
+                  </>
+                )}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/dashboard" className="btn-primary text-lg px-8 py-3">
-                  立即开始创作
-                  <ArrowRightIcon className="ml-2 h-5 w-5" />
+                <Link href="/dashboard" className="btn-primary text-lg px-8 py-3 group">
+                  {isFirstVisit ? '开始我的第一本书' : '立即开始创作'}
+                  <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link href="/demo" className="btn-secondary text-lg px-8 py-3">
-                  查看演示
+                  {isFirstVisit ? '先看看怎么用' : '查看演示'}
                 </Link>
               </div>
+              
+              {isFirstVisit && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1, duration: 0.6 }}
+                  className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-md mx-auto"
+                >
+                  <div className="flex items-center space-x-2 text-blue-800">
+                    <LightBulbIcon className="h-5 w-5" />
+                    <span className="font-medium">新手提示</span>
+                  </div>
+                  <p className="text-sm text-blue-700 mt-1">
+                    只需3分钟，就能创建你的第一个智能图书项目
+                  </p>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </section>
