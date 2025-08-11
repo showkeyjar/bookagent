@@ -1,7 +1,7 @@
 """
 数据库模型
 """
-from .base import Base
+from .base import BaseModel as Base
 from .user import User
 from .book import Book
 from .chapter import Chapter

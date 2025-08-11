@@ -3,7 +3,7 @@
 """
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from pydantic import Field
+from pydantic import Field, field_validator
 from .base import BaseSchema
 
 class BookBase(BaseSchema):
@@ -14,7 +14,7 @@ class BookBase(BaseSchema):
     is_public: bool = False
     cover_image: Optional[str] = None
     
-    @validator('status')
+    @field_validator('status')
     def validate_status(cls, v):
         if v not in ('draft', 'published', 'archived'):
             raise ValueError('状态必须是 draft、published 或 archived')
@@ -37,7 +37,7 @@ class BookInDBBase(BookBase):
     updated_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Book(BookInDBBase):
     """响应模型 - 图书信息"""

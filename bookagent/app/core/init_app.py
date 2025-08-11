@@ -42,6 +42,16 @@ def register_routers(app: FastAPI):
     from ..api import api_router
     app.include_router(api_router, prefix="/api/v1")
 
+    # 提供静态文件服务
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/static", StaticFiles(directory="bookagent/app/static"), name="static")
+
+    # 添加根路由，重定向到静态文件的index.html
+    from fastapi.responses import FileResponse
+    @app.get("/")
+    def root():
+        return FileResponse("bookagent/app/static/index.html")
+
 def create_application() -> FastAPI:
     """创建FastAPI应用"""
     # 创建FastAPI应用

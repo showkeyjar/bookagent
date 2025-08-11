@@ -89,7 +89,7 @@ def delete_template(db: Session, template_id: int):
     db.commit()
     return db_template
 
-@router.post("/templates/", response_model=TemplateSchema, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=TemplateSchema, status_code=status.HTTP_201_CREATED)
 def create_template_endpoint(
     template: TemplateCreate,
     db: Session = Depends(get_db),
@@ -105,14 +105,13 @@ def create_template_endpoint(
         raise HTTPException(status_code=400, detail="创建模板失败")
     return db_template
 
-@router.get("/templates/", response_model=List[TemplateSchema])
+@router.get("/", response_model=List[TemplateSchema])
 def read_templates(
     template_type: Optional[str] = None,
     is_default: Optional[bool] = None,
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(security.get_current_active_user)
+    db: Session = Depends(get_db)
 ):
     """获取模板列表"""
     templates = get_templates(
@@ -124,7 +123,7 @@ def read_templates(
     )
     return templates
 
-@router.get("/templates/{template_id}", response_model=TemplateSchema)
+@router.get("/{template_id}", response_model=TemplateSchema)
 def read_template(
     template_id: int,
     db: Session = Depends(get_db),
@@ -136,7 +135,7 @@ def read_template(
         raise HTTPException(status_code=404, detail="模板不存在")
     return db_template
 
-@router.put("/templates/{template_id}", response_model=TemplateSchema)
+@router.put("/{template_id}", response_model=TemplateSchema)
 def update_template_endpoint(
     template_id: int,
     template: TemplateUpdate,
@@ -149,7 +148,7 @@ def update_template_endpoint(
         raise HTTPException(status_code=404, detail="模板不存在")
     return db_template
 
-@router.delete("/templates/{template_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{template_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_template_endpoint(
     template_id: int,
     db: Session = Depends(get_db),

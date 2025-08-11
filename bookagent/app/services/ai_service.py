@@ -7,9 +7,9 @@ import logging
 from typing import List, Dict, Any, Optional, AsyncGenerator, Union
 import re
 
-from app.core.llm import LLMClient, get_llm_client
-from app.core.config import settings
-from app.core.cache import cached
+from ..core.llm import LLMClient, get_llm_client
+from ..core.config import settings
+from ..core.cache import cached
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,7 @@ class AIService:
         language: str = "zh",
         length: str = "medium",
         context: Optional[str] = None,
+        use_tables: bool = True,
         **kwargs
     ) -> str:
         """生成章节内容
@@ -174,6 +175,7 @@ class AIService:
             language: 语言 (zh, en, etc.)
             length: 内容长度 (short, medium, long)
             context: 上下文信息，如前面章节的内容摘要
+            use_tables: 是否自动将适合的内容组织成表格
             **kwargs: 其他参数
             
         Returns:
@@ -206,6 +208,12 @@ class AIService:
         )
         
         context_info = f"\n上下文信息：{context}" if context else ""
+        # 如果启用了表格生成功能，添加相关提示
+        if use_tables:
+            system_prompt += (
+                "\n\n当遇到适合用表格展示的信息（如对比不同选项、列举参数配置、展示步骤等）时，"
+                "请使用Markdown表格格式进行组织，以提高内容的可读性。"
+            )
         
         prompt = (
             f"请为以下标题生成技术文档章节内容：\n\n"

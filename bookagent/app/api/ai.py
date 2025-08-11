@@ -16,6 +16,8 @@ from ..schemas.ai import (
 )
 from ..services.ai_service import get_ai_service, AIService
 from ..core.security import get_current_active_user
+from ..core.database import get_db
+from sqlalchemy.orm import Session
 from ..models.user import User
 
 router = APIRouter()
@@ -201,10 +203,10 @@ async def generate_chapter_content(
         return prompt
 
 @router.post("/ai/generate/chapter")
-asdef generate_chapter(
+async def generate_chapter(
     data: Dict[str, Any],
     db: Session = Depends(get_db),
-    current_user: User = Depends(security.get_current_active_user)
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     生成章节内容
@@ -235,11 +237,11 @@ asdef generate_chapter(
     return result
 
 @router.post("/ai/generate/chapter/{chapter_id}")
-asdef generate_chapter_content(
+async def generate_chapter_content(
     chapter_id: int,
     data: Dict[str, Any],
     db: Session = Depends(get_db),
-    current_user: User = Depends(security.get_current_active_user)
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     为现有章节生成内容

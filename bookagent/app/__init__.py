@@ -23,5 +23,5 @@ app.add_middleware(
 )
 
 # 导入路由
-from .api import router as api_router
+from .api import api_router
 app.include_router(api_router, prefix="/api/v1")

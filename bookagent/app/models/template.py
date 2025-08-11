@@ -1,7 +1,7 @@
 """
 模板模型
 """
-from sqlalchemy import Column, String, Text, Integer, Enum, JSON, ForeignKey
+from sqlalchemy import Column, String, Text, Integer, Enum, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from ..core.database import Base
 from .base import BaseModel
